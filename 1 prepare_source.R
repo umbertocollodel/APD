@@ -19,7 +19,7 @@ lapply(packages, function(x){
 
 # List of APD countries: -----
 
-apd_list_countries <- read.xlsx("~/Desktop/countryinformation.xlsx", sheet = "Country data") %>% 
+apd_list_countries <- read.xlsx("../APD_material/raw_data/countryinformation.xlsx", sheet = "Country data") %>% 
   select(2, AFR_IMF, APD_IMF, EUR_IMF, MCD_IMF, WHD_IMF) %>% 
   filter(complete.cases(`CODE_IMF`)) %>% 
   gather("region","value",AFR_IMF:WHD_IMF) %>% 
