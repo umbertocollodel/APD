@@ -14,8 +14,8 @@ read_xlsx("../APD_material/raw_data/health_stringency_index.xlsx", sheet = 2, sk
   group_by(Country, month) %>% 
   summarise(stringency_index = mean(stringency_index, na.rm = T)) %>% 
   filter(Country != "China") %>%
-  filter(Country == "Australia" | Country == "India" | Country == "Indonesia") %>% 
+  filter(Country == "India" | Country == "Indonesia" | Country == "Philippines" | Country == "Nepal" | Country == "Malaysia") %>% 
   ggplot(aes(month, stringency_index, group = Country,col = Country)) +
-  geom_line() +
+  geom_line(size = 2) +
   theme_minimal()
 
