@@ -16,7 +16,7 @@ deaths_df <- read_xlsx("~/Desktop/ERP matrix.xlsx", sheet = "OWID Data") %>%
 
 # Take different snapshots in time (April, June, August)
 
-time_chunks=c("2020M4","2020M6","2020M8")
+time_chunks=c("2020M4","2020M10")
 
 df <- time_chunks %>% 
   map(~ deaths_df %>% filter(AlternativeDate == .x))
@@ -29,7 +29,7 @@ world <- ne_countries(scale = "medium", returnclass = "sf") %>%
 
 # Plot: ------
 
-df %>% 
+maps_deaths <- df %>% 
   map(~ .x %>% merge(world, by=c("iso3c"))) %>% 
   map(~ .x %>% 
   ggplot(aes(geometry = geometry, fill = cumsum_deaths)) +
@@ -37,9 +37,13 @@ df %>%
   scale_fill_gradient(low = "white", high = "red") +
   xlim(60,190) +
   theme_minimal() +
-  theme(legend.position = "none"))
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank()))
 
 # Export:
+
+maps_deaths %>% 
+  walk2(time_chunks, ~ ggsave(paste0("../APD_material/output/figures/cumsum_deaths_map",.y,".pdf"),.x))
 
 
 
