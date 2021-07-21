@@ -22,7 +22,7 @@ read.xlsx("../APD_material/raw_data/financial_nominal_exchange_rate.xlsx", sheet
   ggplot(aes(country.name)) +
   geom_col(data = . %>% filter(period == "Covid"),aes(y=depreciation_initial, fill = "Covid-19 (Jan-Apr 2020)")) +
   geom_point(data = . %>% filter(period == "GFC"),aes(y=depreciation_initial, col = "GFC (Aug-Nov 2008)"), size = 3) +
-  ylab("Percent change of exchange rate \n (+ depreciation of local currency vis-a-vis US$") +
+  ylab("Percent change of exchange rate \n (+ depreciation of local currency \nvis-a-vis US$)") +
   xlab("") +
   labs(col = "",fill = "") +
   scale_fill_manual(values = "gray") +
