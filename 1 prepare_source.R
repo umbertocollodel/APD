@@ -5,7 +5,7 @@ remove(list = ls())
 
 
 packages=c("tidyverse","openxlsx","readxl",
-           "countrycode","rio")
+           "countrycode","rnaturalearth","rnaturalearthdata","sf")
 
 
 lapply(packages, function(x){
