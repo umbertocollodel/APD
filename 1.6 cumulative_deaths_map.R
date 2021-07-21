@@ -36,8 +36,10 @@ maps_deaths <- df %>%
   geom_sf() +
   scale_fill_gradient(low = "white", high = "red") +
   xlim(60,190) +
+  labs(fill = "") +
   theme_minimal() +
-  theme(legend.position = "none") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=14)) +
   theme(axis.text = element_blank()))
 
 # Export:
