@@ -1,14 +1,19 @@
 ############ Script to produce figure comparison aid across IFIs: 
 
 
+# Prepare dataframe: -----
 
-# Plot: ------
-
-
-read_xlsx("../APD_material/raw_data/CSIS IFI COVID-19 Response Tracker.xlsx", skip = 2) %>% 
+df <- read_xlsx("../APD_material/raw_data/CSIS IFI COVID-19 Response Tracker.xlsx", skip = 2) %>% 
   filter(`Country/Recipient` %in% countrycode(apd_list_countries,"imf","country.name")) %>% 
-  filter(!is.na(`Country/Recipient`)) %>% 
-  group_by(Institution) %>% 
+  filter(!is.na(`Country/Recipient`)) %>%
+  mutate(Institution = case_when(Institution == "AsDb" ~ "AsDB",
+                                 T ~ Institution)) %>% 
+  group_by(Institution)
+
+
+# Plot amount arrangements different institution: ------
+
+df %>% 
   summarise_at(vars(contains("Value")),sum, na.rm = T) %>% 
   ungroup() %>%
   mutate(IMF = case_when(Institution == "IMF" ~ "IMF",
@@ -26,11 +31,35 @@ read_xlsx("../APD_material/raw_data/CSIS IFI COVID-19 Response Tracker.xlsx", sk
   theme(panel.grid.major.x = element_blank()) +
   theme(legend.position = "none")
 
-
-
 # Export:
 
 
 ggsave("../APD_material/output/figures/amount_aid_apd.pdf",
        height = 6,
        width = 10)
+
+
+# Plot number of countries with an arrangement:
+
+df %>% 
+  distinct(`Country/Recipient`) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(IMF = case_when(Institution == "IMF" ~ "IMF",
+                         T ~ "Other IFIs")) %>% 
+  mutate(Institution = fct_reorder(Institution, n, mean)) %>% 
+  ggplot(aes(Institution, n, fill = IMF)) +
+  geom_col(width = 0.5, alpha = 0.9) +
+  scale_fill_manual(values = c("#4472C4","#ED7D31")) +
+  xlab("") +
+  ylab("Number of Countries") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 22),
+          axis.text = element_text(size = 18)) +
+  theme(panel.grid.major.x = element_blank()) +
+  theme(legend.position = "none")
+
+ggsave("../APD_material/output/figures/ncountries_aid_apd.pdf",
+       height = 6,
+       width = 10)
+  
