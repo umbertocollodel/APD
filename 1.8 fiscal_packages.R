@@ -1,58 +1,54 @@
-# GDP: -----
-
-ngdp <- read_xlsx("~/Dropbox/Emergency_response_covid/Emergency_response_covid_material/raw_data/WEOOct2020.xlsx") %>% 
-  select(Country,`2019`:`2020`) %>% 
-  mutate_at(vars(matches("\\d")),as.numeric) %>% 
-  mutate_at(vars(matches("\\d")),funs(.*1000)) %>% 
-  gather("year","ngdp_usd",`2019`:ncol(.)) %>% 
-  rename(country = Country) %>% 
-  filter(year == 2019) %>% 
-  mutate(iso3c = countrycode(country,"country.name","iso3c")) %>%
-  mutate(iso3c = case_when(country == "Kosovo" ~ "KSV",
-                           country == "Eswatini" ~ "SWZ",
-                           T ~ iso3c)) %>% 
-  mutate(country.code = countrycode(iso3c,"iso3c","imf")) %>% 
-  select(-year, -country) %>% 
-  filter(complete.cases(.))
-
 # Income group: -----
 
-income_group < -read_xlsx("~/Dropbox/When_where_and_why/When_where_and_why_material/raw_data/country_group.xlsx") %>% 
-  filter(ifscode %in% apd_list_countries) %>%
-  rename(country.code = ifscode) %>%
+income_group <- read_xlsx("~/Dropbox/When_where_and_why/When_where_and_why_material/raw_data/country_group.xlsx") %>% 
   mutate(group = case_when(adv == 1 ~ "Advanced",
                            eme == 1 & lidc == 0 ~ "EM",
-                           eme == 1 & lidc == 1 ~ "LIDC")) %>% 
-  select(country.code, group)
+                           eme == 1 & lidc == 1 ~ "LIDC"
+  )) %>% 
+  select(ifscode, group) %>% 
+  rename(country.code = ifscode)
+
+
+
+
+
+# Cleaning fiscal response dataframe: ------
+
+fiscal_response_df <- read_xlsx("../APD_material/raw_data/fiscal-measures-covid_19.xlsx", skip = 4, sheet = 2) %>% 
+  select(`...1`,`Additional spending or foregone revenues...14`,`...15`,`...16`) %>% 
+  slice(3:nrow(.)) %>% 
+  filter(complete.cases(.)) %>% 
+  setNames(c("country.name","total","health","non_health")) %>% 
+  mutate(country.code = countrycode(country.name,"country.name","imf")) %>% 
+  filter(complete.cases(country.code)) %>% 
+  filter(country.code %in% apd_list_countries) %>% 
+  mutate_at(vars(total,contains("health")),funs(as.numeric(.)))
+  
   
 
+# Merge and plot: ----- 
 
-
-# Governement support figures: ------
-
-
-read_xlsx("~/Desktop/ADB_Tracker.xlsx") %>%
-  mutate(country.code = countrycode(Economy,"country.name","imf")) %>%
-  mutate(Measure = case_when(row_number() < 79 ~ "Liquidity Support",
-                             row_number() >= 80 & row_number() < 159 ~ "Credit Creation",
-                             row_number() >= 159 & row_number() < 238 ~ "Direct Long-Term Lending",
-                             row_number() >= 238 & row_number() < 317 ~ "Equity Support",
-                             row_number() >= 317 & row_number() < 396 ~ "Health and Income support",
-                             row_number() >= 396 & row_number() < 475 ~ "Budget Reallocation",
-                             row_number() >= 475 & row_number() < 554 ~ "Central Bank financing government",
-                             row_number() >= 554 & row_number() <= 632 ~ "No breakdown")) %>% 
-  filter(country.code %in% apd_list_countries) %>% 
-  gather("date","value",`Apr 20, 2020`:`Mar 22, 2021`) %>% 
-  filter(date == "Mar 22, 2021") %>% 
-  group_by(country.code) %>% 
-  summarise(total = sum(value, na.rm = T)/1000000) %>%
-  merge(income_group, by=c("country.code")) %>%
-  merge(ngdp, by=(c("country.code"))) %>% 
-  mutate(`value/gdp` = total/ngdp_usd *100) %>% 
-  ungroup() %>% 
-  group_by(group) %>% 
-  summarise(median = median(`value/gdp`))
-  arrange(-total) %>% 
-  print(n=Inf)
-  unique() %>% 
-  sort()
+fiscal_response_df %>%     
+  merge(income_group) %>% 
+  as_tibble() %>% 
+  gather("type","value",total:non_health) %>% 
+  group_by(group, type) %>% 
+  summarise(average_response = mean(value)) %>% 
+  filter(type != "total") %>% 
+  mutate(type = case_when(type == "health" ~ "Health sector",
+                          T ~ "Non-health sector")) %>% 
+  ggplot(aes(group,average_response, fill = type)) +
+  geom_col(alpha = 0.9,position = "stack") +
+  theme_minimal() +
+  ylab("% of GDP") +
+  xlab("") +
+  labs(fill = "") +
+  scale_fill_manual(values = c("#4472C4","#ED7D31")) +
+  theme(panel.grid.major.x = element_blank()) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 18),
+        axis.title.y = element_blank())
+  
