@@ -51,4 +51,31 @@ fiscal_response_df %>%
         axis.title.x = element_blank(),
         axis.text.y = element_text(size = 18),
         axis.title.y = element_blank())
+
+
+# Merge and plot top 3 by income group: -----
+
+fiscal_response_df %>%     
+  merge(income_group) %>% 
+  as_tibble() %>% 
+  group_by(group) %>% 
+  arrange(-total) %>% 
+  slice(1:3) %>% 
+  mutate(country.name = fct_reorder(country.name,total, mean, .desc = T)) %>% 
+  ggplot(aes(total,country.name, fill = group)) +
+  geom_col(width = 0.6) +
+  labs(fill = "") +
+  scale_y_discrete(limits=rev) +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank()) +
+  scale_fill_manual(values = c("#4472C4","#ED7D31","#92D050")) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 18),
+        axis.title.y = element_blank())
+  
+    
+
   
