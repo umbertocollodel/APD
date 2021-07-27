@@ -50,7 +50,14 @@ fiscal_response_df %>%
   theme(axis.text.x = element_text(size = 18),
         axis.title.x = element_blank(),
         axis.text.y = element_text(size = 18),
-        axis.title.y = element_blank())
+        axis.title.y = element_text(size = 22))
+
+
+# Export:
+
+ggsave("../APD_material/output/figures/fiscal_response_gdp.pdf",
+       height = 7,
+       width = 12.5)
 
 
 # Merge and plot top 3 by income group: -----
