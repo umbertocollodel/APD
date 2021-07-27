@@ -26,55 +26,74 @@ dates_reopening <- read_xlsx("../APD_material/raw_data/health_stringency_index.x
 # Death data: -----
 
 
-deaths_august <- read_xlsx("~/Desktop/ERP matrix.xlsx", sheet = "OWID Data") %>%
-  filter(countrycode(location,"country.name","imf") %in% countrycode(countries,"country.name","imf")) %>%
-  filter(AlternativeDate == "2020M8")
+cases_august <- read.csv("../APD_material/raw_data/total-and-daily-covid-cases-per-million.csv") %>%
+  filter(countrycode(Entity,"country.name","imf") %in% countrycode(countries,"country.name","imf")) %>%
+  filter(str_detect(Day, "2020-08")) %>% 
+  group_by(Entity) %>% 
+  setNames(c("country","iso","date","total","confirmed")) %>% 
+  summarise(avg_cases = mean(confirmed, na.rm = T))
 
 # Death data: -----
 
-deaths_data <- read_xlsx("~/Desktop/ERP matrix.xlsx", sheet = "new_deaths_per_million") %>% 
-  gather("country","deaths",World:ncol(.)) %>% 
-  filter(countrycode(country,"country.name","imf") %in% countrycode(countries,"country.name","imf")) %>%
+cases_data <- read.csv("../APD_material/raw_data/total-and-daily-covid-cases-per-million.csv") %>%
+  filter(countrycode(Entity,"country.name","imf") %in% countrycode(countries,"country.name","imf")) %>%
+  setNames(c("country","iso","date","total","confirmed")) %>% 
+  mutate(country = as.character(country), date = as.character(date), iso = as.character(iso)) %>% 
   mutate(country = case_when(country == "South Korea" ~ "Korea",
                              T ~ country)) %>% 
-  mutate(date = as.character(date)) %>% 
-  split(.$country) 
+  split(.$country) %>% 
+  discard(~ nrow(.x) == 0)
 
 # Peak deaths before reopening: -----
 
-max_deaths <- deaths_data %>% 
+max_cases <- cases_data %>% 
   map2(dates_reopening, ~ .x %>% filter(date <= .y)) %>% 
-  map(~ .x %>% slice(which.max(deaths))) %>% 
+  map(~ .x %>% slice(which.max(confirmed))) %>% 
   bind_rows() %>% 
-  rename(max_deaths = deaths) %>% 
-  select(country, max_deaths)
+  rename(max_cases = confirmed) %>% 
+  select(country, max_cases)
 
 
 
 # Combine information: ----
 
 
-deaths_reopening <- deaths_data %>% 
+cases_reopening <- cases_data %>% 
   map2(dates_reopening, ~ .x %>% filter(date %in% .y)) %>% 
   bind_rows() %>% 
-  rename(deaths_reopening = deaths) %>% 
-  filter(country != "Vietnam")
-  
+  rename(cases_reopening = confirmed) 
 
-max_deaths %>% 
-  merge(deaths_reopening) %>% 
-  mutate(change = (deaths_reopening - max_deaths)/max_deaths)
 
+df <- max_cases %>% 
+  merge(cases_reopening) %>% 
+  mutate(change = (cases_reopening - max_cases)/max_cases*100) %>% 
+  as_tibble() %>% 
+  merge(cases_august) %>% 
+  mutate(opening = case_when(country %in% c("India","Indonesia","Philippines") ~ "Opened before flattening",
+                             country %in% c("Australia","Japan") ~ "Second wave",
+                             T ~ "Opened following flattening")) %>% 
+  mutate(country = fct_reorder(country, opening)) 
 
 
 # Plot: ------
 
 
-
-deaths_august %>% 
-  ggplot(aes(location, NewConfirmedDeaths)) +
-  geom_point() +
-  theme_minimal()
-
+df %>% 
+  ggplot(aes(country)) +
+  geom_col(aes(y=change, fill = opening), width = 0.7, alpha = 0.9) +
+  geom_point(aes(y=-avg_cases), col = "grey", size=  3.5) +
+  scale_y_continuous("Cases at reopening relative to peak before (% change)", sec.axis = sec_axis(~ .,"New cases per million, August (reversed)")) +
+  xlab("") +
+  labs(fill = "", col = "") +
+  scale_fill_manual(values = c("#4472C4","#ED7D31","#92D050")) +
+  scale_color_manual(values = "grey") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 18),
+        axis.title.y = element_text(size = 22))
   
 
