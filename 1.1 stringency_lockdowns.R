@@ -80,16 +80,19 @@ df <- max_cases %>%
 
 df %>% 
   ggplot(aes(country)) +
-  geom_col(aes(y=change, fill = opening), width = 0.7, alpha = 0.9) +
+  geom_col(aes(y=change, fill = "Cases at reopening relative to peak before reopening"), width = 0.7, alpha = 0.9) +
   geom_point(aes(y=-avg_cases, col = "New cases per million, August (right hand side, reversed)"), size=  3.5) +
-  scale_y_continuous("Percent change", sec.axis = sec_axis(~ .)) +
+  scale_y_continuous("Percent change", sec.axis = sec_axis(~ -.)) +
+  facet_grid(~ opening, scales = "free_x", switch  = "x",space = "free_x") +
   xlab("") +
   labs(fill = "", col = "") +
-  scale_fill_manual(values = c("#4472C4","#ED7D31","#92D050")) +
+  scale_fill_manual(values = c("#4472C4")) +
   scale_color_manual(values = "grey") +
   theme_minimal() +
+  theme(strip.text = element_text(size = 15),
+        strip.placement = "outside") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  theme(legend.position = 'bottom', 
+  theme(legend.position = 'top', 
         legend.box = 'vertical', 
         legend.box.just = 'left',
         legend.text = element_text(size = 14)
