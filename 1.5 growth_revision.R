@@ -31,7 +31,7 @@ read_xlsx("~/Dropbox/When_where_and_why/When_where_and_why_material/raw_data/weo
                              T ~ Country)) %>% 
   mutate(Country = factor(Country,levels = c("Asia and Pacific","Advanced Asia","Emerging and Developing Asia"))) %>% 
   ggplot(aes(year,growth, group = Country, col = Country)) +
-  geom_line() +
+  geom_line(size = 1.5) +
   xlab("") +
   ylab("") +
   labs(col="") +
