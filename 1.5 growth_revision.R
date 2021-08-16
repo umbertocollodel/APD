@@ -29,6 +29,7 @@ read_xlsx("~/Dropbox/When_where_and_why/When_where_and_why_material/raw_data/weo
   ungroup() %>% 
   mutate(Country = case_when(Country == "Asia and Pacific (EXR) WEO" ~ "Asia and Pacific",
                              T ~ Country)) %>% 
+  mutate(Country = factor(Country,levels = c("Asia and Pacific","Advanced Asia","Emerging and Developing Asia"))) %>% 
   ggplot(aes(year,growth, group = Country, col = Country)) +
   geom_line() +
   xlab("") +
