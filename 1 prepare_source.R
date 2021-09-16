@@ -18,6 +18,7 @@ lapply(packages, function(x){
 
 
 # List of APD countries: -----
+# Note: for other regions change region filter 
 
 apd_list_countries <- read.xlsx("../APD_material/raw_data/countryinformation.xlsx", sheet = "Country data") %>% 
   select(2, AFR_IMF, APD_IMF, EUR_IMF, MCD_IMF, WHD_IMF) %>% 
