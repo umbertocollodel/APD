@@ -41,7 +41,17 @@ long_data %>%
         axis.text.y = element_text(size = 18),
         axis.title.y = element_blank())
 
-# Exporting:
+# Exporting intermediate data and plot: -----
+
+
+# Intermediate data: 
+
+long_data %>%
+  filter(country.name != "Vietnam" & country.name != "Mongolia") %>% 
+  rio::export("../APD_material/intermediate_data/replication_figures/monetary_rates_figure.xlsx")
+
+# Plot:
+
 
 ggsave("../APD_material/output/figures/rate_change.pdf",
        height = 7,

@@ -28,3 +28,12 @@ apd_list_countries <- read.xlsx("../APD_material/raw_data/countryinformation.xls
   filter(region == "APD") %>% 
   .$`CODE_IMF`
 
+# Income group classification: -----
+
+income_group <- read_xlsx("../APD_material/raw_data/country_group.xlsx") %>% 
+  rename(country.code = ifscode) %>%
+  mutate(group = case_when(adv == 1 ~ "Advanced",
+                           eme == 1 & lidc == 0 ~ "EM",
+                           eme == 1 & lidc == 1 ~ "LIDC")) %>% 
+  select(country.code, group)
+
