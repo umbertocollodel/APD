@@ -1,16 +1,5 @@
 ############ Script to produce figure change in monetary policy rates (reproduction of REO 2021 Africa - Figure 14)
-
-
-
-# Income group classification: -----
-
-income_group <- read_xlsx("~/Dropbox/When_where_and_why/When_where_and_why_material/raw_data/country_group.xlsx") %>% 
-  rename(country.code = ifscode) %>%
-  mutate(group = case_when(adv == 1 ~ "Advanced",
-                           eme == 1 & lidc == 0 ~ "EM",
-                           eme == 1 & lidc == 1 ~ "LIDC")) %>% 
-  select(country.code, group)
-
+############ Note: to produce for other regions change sheet filter
 
 # Data into long format -----
 

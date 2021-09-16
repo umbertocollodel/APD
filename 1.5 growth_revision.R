@@ -1,4 +1,5 @@
-########## Script to produce table revision of GDP growth and figure wit:
+########## Script to produce table revision of GDP growth and figure with pre-2019 developments in real GDP:
+# Note: not standardized for other regions
 
 
 # Table GDP revision after crisis: -----

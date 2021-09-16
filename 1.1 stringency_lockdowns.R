@@ -1,9 +1,14 @@
-# Script to produce figure lockdowns and stringency
+########## Script to produce figure timing easing from lockdowns and new cases in August
+# Note: for other regions change country names
 
+
+# Set country names: -----
 
 countries=c("India", "Indonesia","Philippines","Korea, Republic of", "Myanmar",
             "Thailand", "New Zealand", "Australia", "Japan", 
             "Vietnam","China, People's Republic of")
+
+# Get dates of re-opening for each country (first day after the peak of index): -----
 
 dates_reopening <- read_xlsx("../APD_material/raw_data/health_stringency_index.xlsx", sheet = 2, skip = 1) %>% 
   gather("date","value",`January 1, 2020`:ncol(.)) %>% 
@@ -23,7 +28,7 @@ dates_reopening <- read_xlsx("../APD_material/raw_data/health_stringency_index.x
   split(.$Country) %>% 
   map(~ .x %>% .$date)
 
-# Death data: -----
+# Death data for August: -----
 
 
 cases_august <- read.csv("../APD_material/raw_data/total-and-daily-covid-cases-per-million.csv") %>%
@@ -33,7 +38,7 @@ cases_august <- read.csv("../APD_material/raw_data/total-and-daily-covid-cases-p
   setNames(c("country","iso","date","total","confirmed")) %>% 
   summarise(avg_cases = mean(confirmed, na.rm = T))
 
-# Death data: -----
+# Death data for all time period: -----
 
 cases_data <- read.csv("../APD_material/raw_data/total-and-daily-covid-cases-per-million.csv") %>%
   filter(countrycode(Entity,"country.name","imf") %in% countrycode(countries,"country.name","imf")) %>%
@@ -44,7 +49,7 @@ cases_data <- read.csv("../APD_material/raw_data/total-and-daily-covid-cases-per
   split(.$country) %>% 
   discard(~ nrow(.x) == 0)
 
-# Peak deaths before reopening: -----
+# Identify peak of deaths before reopening: -----
 
 max_cases <- cases_data %>% 
   map2(dates_reopening, ~ .x %>% filter(date <= .y)) %>% 
@@ -55,13 +60,16 @@ max_cases <- cases_data %>%
 
 
 
-# Combine information: ----
+# Identify cases at the time of reopening: ----
 
 
 cases_reopening <- cases_data %>% 
   map2(dates_reopening, ~ .x %>% filter(date %in% .y)) %>% 
   bind_rows() %>% 
   rename(cases_reopening = confirmed) 
+
+
+# Combine information and calculate change of deaths from reopening to peak before: -----
 
 
 df <- max_cases %>% 
@@ -75,7 +83,7 @@ df <- max_cases %>%
   mutate(country = fct_reorder(country, opening)) 
 
 
-# Plot: ------
+# Plot and export: ------
 
 
 df %>% 
@@ -102,7 +110,13 @@ df %>%
         axis.text.y = element_text(size = 18),
         axis.title.y = element_text(size = 22))
 
-# Export:
+# Export intermediate data:
+
+df %>% 
+  rio::export("../APD_material/intermediate_data/replication_figures/stringency_lockdowns_figure.xlsx")
+
+
+# Export figure:
 
 ggsave("../APD_material/output/figures/stringency_lockdowns.pdf",
        height = 7,

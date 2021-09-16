@@ -1,5 +1,5 @@
 ####### Script to produce capital flows figure 
-
+####### Note: for other regions just change sheet filter
 
 
 # Basic cleaning flows and reserves data: ------
@@ -32,15 +32,21 @@ list_flows[[2]] <- list_flows[[2]] %>%
   ungroup()
 
 
-# Plot evolution over time: ------
+# Calculate sum by instrument type and quarter: ------
 
-list_flows[[1]] %>%
+df <-list_flows[[1]] %>%
   filter(country != "Japan") %>%
   filter(quarter >= "2014-Q1") %>% 
   group_by(quarter, `Type Inflow`) %>% 
   summarise(sum = sum(value, na.rm = T)/1000) %>% 
   group_by(quarter) %>% 
-  mutate(total = sum(sum)) %>% 
+  mutate(total = sum(sum)) 
+
+
+# Plot evolution over time: ------
+
+
+df %>% 
   ggplot(aes(`quarter`,sum, fill = `Type Inflow`)) +
   geom_col(width = 0.4) +
   geom_line(aes(y=total, group = 1, col = "Total"), size = 1.5) +
@@ -59,8 +65,12 @@ list_flows[[1]] %>%
         axis.text.y = element_text(size = 18),
         axis.title.y = element_text(size = 22))
 
+# Export intermediate data:
 
-# Export:
+df %>% 
+  rio::export("../APD_material/intermediate_data/replication_figures/gross_capital_flows_figure.xlsx")
+
+# Export figure:
 
 ggsave("../APD_material/output/figures/gross_capital_flows.pdf",
        height = 7,

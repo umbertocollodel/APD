@@ -1,9 +1,17 @@
 ########## Script to produce figure exchange rate depreciation:
+# Note: for other regions change sheet filter and name countries interested in
+# Note: we plot only depreciation in the first three months
 
+
+# Set parameters: -----
 
 months=c("2008-08","2008-11","2009-12","2020-01","2020-04","2021-04")
 
-read.xlsx("../APD_material/raw_data/financial_nominal_exchange_rate.xlsx", sheet = "APD") %>% 
+
+# Create dataframe: -----
+
+
+df_exchange <- read.xlsx("../APD_material/raw_data/financial_nominal_exchange_rate.xlsx", sheet = "APD") %>% 
   as_tibble() %>% 
   gather("month","er",`1980-01`:ncol(.)) %>% 
   filter(month %in% months) %>% 
@@ -18,7 +26,11 @@ read.xlsx("../APD_material/raw_data/financial_nominal_exchange_rate.xlsx", sheet
   bind_rows(.id = "period") %>%
   filter(country.name %in% c("Australia","Bangladesh","Indonesia","Japan","Thailand","Nepal","Korea",
          "New Zealand","Vietnam", "Malaysia","Papua New Guinea","Tonga", "Philippines", "Singapore", "India",
-         "Sri Lanka","China")) %>% 
+         "Sri Lanka","China")) 
+
+# Plot and export: ----
+
+df_exchange %>% 
   ggplot(aes(country.name)) +
   geom_col(data = . %>% filter(period == "Covid"),aes(y=depreciation_initial, fill = "Covid-19 (Jan-Apr 2020)")) +
   geom_point(data = . %>% filter(period == "GFC"),aes(y=depreciation_initial, col = "GFC (Aug-Nov 2008)"), size = 3) +
@@ -35,7 +47,13 @@ read.xlsx("../APD_material/raw_data/financial_nominal_exchange_rate.xlsx", sheet
         axis.text.x = element_text(size = 18),
         axis.title.y = element_text(size = 20))
 
-# Export:
+# Export intermediate data: 
+
+df_exchange %>% 
+  rio::export("../APD_material/intermediate_data/replication_figures/exchange_rate_depreciation_figure.xlsx")
+
+
+# Export plot:
 
 ggsave("../APD_material/output/figures/exchange_rate_depreciation.pdf",
        height = 7,
