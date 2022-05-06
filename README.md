@@ -4,6 +4,10 @@
 
 The repository studies the evolution of the Covid-19 pandemic in the Asia-Pacific region from the economic and epidemiological standpoint. 
 
+## Data
+
+We use data for mortality and cases from the John Hopkins university. The stringency index comes from the University of Oxford. Economic variables are from IMF and other international organizations databases.
+
 ### Pandemic development
 
 In April, most of the countries in the region were affected by the pandemic. In October, instead, the majority of the cases was located in South Asia.
@@ -19,6 +23,10 @@ Countries that re-opened before the flattening of the pandemic curve (e.g. India
 <p float="left">
   <img src="https://user-images.githubusercontent.com/33840988/167109405-13e7d625-4d42-4778-b81e-76e5bff6368d.jpg" width="600" />
 </p>
+
+### Economic development
+
+(coming soon)
 
 
 
