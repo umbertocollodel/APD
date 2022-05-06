@@ -26,7 +26,12 @@ Countries that re-opened before the flattening of the pandemic curve (e.g. India
 
 ### Economic development
 
-(coming soon)
+Countries in the region responded with a mixture of monetary and fiscal easing. In addition, they used the exchange rate as a shock absorber, although in a reduced way compared to the Global Financial Crisis.
+
+
+<p float="left">
+  <img src="https://user-images.githubusercontent.com/33840988/167121305-577e87b1-ba27-4dad-b9e6-bda0dd741a21.jpg" width="600" />
+</p>
 
 
 
