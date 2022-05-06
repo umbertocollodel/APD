@@ -4,8 +4,8 @@ The repository studies the evolution of the Covid-19 pandemic in the Asia-Pacifi
 
 
 <p float="left">
-  <img src="https://user-images.githubusercontent.com/33840988/167109102-23b839a8-9c71-4035-94e7-33bd039d3d12.jpg" width="300" />
-  <img src="https://user-images.githubusercontent.com/33840988/167109109-16d99620-1713-4078-b1dc-4ff3a8795125.jpg" width="300" /> 
+  <img src="https://user-images.githubusercontent.com/33840988/167109102-23b839a8-9c71-4035-94e7-33bd039d3d12.jpg" width="500" />
+  <img src="https://user-images.githubusercontent.com/33840988/167109109-16d99620-1713-4078-b1dc-4ff3a8795125.jpg" width="500" /> 
 </p>
 
 
